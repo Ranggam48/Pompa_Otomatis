@@ -1,6 +1,7 @@
 #include <Arduino_FreeRTOS.h>
 #include "user.h"
-
+#include "ultrasonic.h"
+float distance;
 
 void user_init(void){
   
@@ -17,7 +18,7 @@ void TaskMenu(void *pvParameters){
   (void) pvParameters;
 
   for(;;){
-    
+    vTaskDelay( 200 / portTICK_PERIOD_MS );
   }
 }
 
@@ -25,7 +26,7 @@ void TaskNRF(void *pvParameters){
   (void) pvParameters;
 
   for(;;){
-    
+    vTaskDelay( 200 / portTICK_PERIOD_MS );
   }
 }
 
@@ -33,6 +34,7 @@ void TaskSensor(void *pvParameters){
   (void) pvParameters;
 
   for(;;){
-    
+    distance = getDistance();
+    vTaskDelay( 200 / portTICK_PERIOD_MS );
   }
 }
