@@ -54,7 +54,7 @@ void TaskSensor(void *pvParameters){
     }
     i = 0;
 
-    distance=(buff[1]<<8)+buff[2];
+    distance=((buff[1]<<8)+buff[2])/10;
     Serial.println(distance);    
     vTaskDelay( 1000 / portTICK_PERIOD_MS );
   }
