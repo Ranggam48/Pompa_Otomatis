@@ -46,16 +46,30 @@ void TaskSensor(void *pvParameters){
   
   sensor.begin(9600);
   uint8_t i;
-  for(;;){
-    
+  for(;;){    
     while(sensor.available()>0){
       buff[i] = sensor.read();
       i++;
     }
     i = 0;
-
-    distance=((buff[1]<<8)+buff[2])/10;
-    Serial.println(distance);    
+    
+      if(buff[0]==0xff){
+      int sum;
+      sum=(buff[0]+buff[1]+buff[2])&0x00FF;
+      if(sum==buff[3])
+      {
+        distance=(buff[1]<<8)+buff[2];
+        if(distance>280)
+          {
+           Serial.print("distance=");
+           Serial.print(distance/10);
+           Serial.println("cm");
+          }else 
+              {
+                Serial.println("Below the lower limit");        
+              }
+      }else Serial.println("ERROR");   
     vTaskDelay( 1000 / portTICK_PERIOD_MS );
   }
+}
 }
