@@ -47,12 +47,16 @@ void TaskSensor(void *pvParameters){
   sensor.begin(9600);
   uint8_t i;
   for(;;){    
-    while(sensor.available()>0){
-      buff[i] = sensor.read();
-      i++;
-    }
-    i = 0;
-    
+do{
+     for(int i=0;i<4;i++)
+     {
+        buff[i]=sensor.read();
+     }
+  }while(sensor.read()==0xff);
+
+ 
+sensor.flush();  
+ 
       if(buff[0]==0xff){
       int sum;
       sum=(buff[0]+buff[1]+buff[2])&0x00FF;
