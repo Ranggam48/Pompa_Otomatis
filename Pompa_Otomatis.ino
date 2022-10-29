@@ -1,10 +1,12 @@
-#include <Arduino_FreeRTOS.h>
+#include <Arduino_FreeRTOS.h> //install library
 #include "user.h"
 
 
 
 void setup() {
   // put your setup code here, to run once:
+  Serial.begin(9600);
+  
   user_init();
 
 }

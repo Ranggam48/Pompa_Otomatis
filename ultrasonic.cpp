@@ -4,11 +4,16 @@
 //float distance;
 int duration;
 
+
+
+// inisialisasi sensor ultrasonic
 void ultrasonic_init(void){
   pinMode(trigPin, OUTPUT);
   pinMode(echoPin, INPUT);
 }
 
+
+// fungsi untuk mendapatkan jarak
 float getDistance(void){
   digitalWrite(trigPin, LOW);delayMicroseconds(2);
   digitalWrite(trigPin, HIGH);delayMicroseconds(10);
