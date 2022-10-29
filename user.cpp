@@ -2,8 +2,12 @@
 #include <Arduino_FreeRTOS.h>
 #include "user.h"
 #include "ultrasonic.h"
+#include <SoftwareSerial.h>
+
+SoftwareSerial sensor(2, 3);
 
 float distance;
+uint8_t buff[4];
 
 
 // inisialisasi task untuk RTOS
@@ -40,9 +44,18 @@ void TaskNRF(void *pvParameters){
 void TaskSensor(void *pvParameters){
   (void) pvParameters;
   
+  sensor.begin(9600);
+  uint8_t i;
   for(;;){
-    distance = getDistance();
-    Serial.println(distance);
+    
+    while(sensor.available()>0){
+      buff[i] = sensor.read();
+      i++;
+    }
+    i = 0;
+
+    distance=(buff[1]<<8)+buff[2];
+    Serial.println(distance);    
     vTaskDelay( 1000 / portTICK_PERIOD_MS );
   }
 }
