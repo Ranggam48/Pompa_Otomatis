@@ -3,11 +3,18 @@
 #include "user.h"
 #include "ultrasonic.h"
 #include <SoftwareSerial.h>
+#include "SPI.h"
+#include <nRF24L01.h>
+#include <RF24.h>
 
 SoftwareSerial sensor(2, 3);
 
 float distance;
 uint8_t buff[4];
+
+int pesan;
+RF24 radio(9,10); //instruksi untuk chip enable, dan chip selector
+const uint64_t pipe = 0xE8E8F0F0E1LL; 
 
 
 // inisialisasi task untuk RTOS
@@ -33,9 +40,13 @@ void TaskMenu(void *pvParameters){
 // task untuk komunikasi NRF
 void TaskNRF(void *pvParameters){
   (void) pvParameters;
-
+  
+  radio.begin(); //instruksi memulai prosedur pembacaan module
+  radio.openWritingPipe(pipe);
   for(;;){
-    vTaskDelay( 200 / portTICK_PERIOD_MS );
+    radio.write(pesan, 1);
+    pesan++;
+    vTaskDelay( 1000 / portTICK_PERIOD_MS );
   }
 }
 
