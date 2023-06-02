@@ -5,4 +5,6 @@
 #define MinRange 0
 
 
-float getDistance(void);
+
+void start_read();
+float getDistance();

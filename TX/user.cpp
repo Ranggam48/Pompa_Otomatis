@@ -2,26 +2,16 @@
 #include <Arduino_FreeRTOS.h>
 #include "user.h"
 #include "ultrasonic.h"
-#include <SoftwareSerial.h>
-#include "SPI.h"
-#include <nRF24L01.h>
-#include <RF24.h>
+#include "nrf24.h"
 
-SoftwareSerial sensor(2, 3);
-
-float distance;
-uint8_t buff[4];
-
-int pesan;
-RF24 radio(9,10); //instruksi untuk chip enable, dan chip selector
-const uint64_t pipe = 0xE8E8F0F0E1LL; 
-
+uint16_t  distance;
+char buffTX[4];
 
 // inisialisasi task untuk RTOS
 void user_init(void){
   
   xTaskCreate(TaskMenu, "Menu", 64, NULL, 1, NULL);
-  xTaskCreate(TaskNRF, "NRF", 64, NULL, 1, NULL);
+  xTaskCreate(TaskNRF, "NRF", 128, NULL, 1, NULL);
   xTaskCreate(TaskSensor, "Sensor", 64, NULL, 1, NULL);
   
 }
@@ -41,11 +31,17 @@ void TaskMenu(void *pvParameters){
 void TaskNRF(void *pvParameters){
   (void) pvParameters;
   
-  radio.begin(); //instruksi memulai prosedur pembacaan module
-  radio.openWritingPipe(pipe);
+  nrf24_startTX();
+  Serial.begin(9600);
+  
   for(;;){
-    radio.write(pesan, 1);
-    pesan++;
+    //sprintf(buffTX, "%d", distance);
+    nrf24_Transmite(distance);
+    Serial.println("distance=");
+    Serial.print(distance);
+    Serial.println("cm");
+//    Serial.print(buffTX);
+//    Serial.println("cm");
     vTaskDelay( 1000 / portTICK_PERIOD_MS );
   }
 }
@@ -54,37 +50,11 @@ void TaskNRF(void *pvParameters){
 //task untuk pembacaan sensor
 void TaskSensor(void *pvParameters){
   (void) pvParameters;
-  
-  sensor.begin(9600);
-  uint8_t i;
-  for(;;){    
-do{
-     for(int i=0;i<4;i++)
-     {
-        buff[i]=sensor.read();
-     }
-  }while(sensor.read()==0xff);
 
- 
-sensor.flush();  
- 
-      if(buff[0]==0xff){
-      int sum;
-      sum=(buff[0]+buff[1]+buff[2])&0x00FF;
-      if(sum==buff[3])
-      {
-        distance=(buff[1]<<8)+buff[2];
-        if(distance>280)
-          {
-           Serial.print("distance=");
-           Serial.print(distance/10);
-           Serial.println("cm");
-          }else 
-              {
-                Serial.println("Below the lower limit");        
-              }
-      }else Serial.println("ERROR");   
-    vTaskDelay( 1000 / portTICK_PERIOD_MS );
+  start_read();
+  
+  for(;;){    
+    distance = getDistance();
+    vTaskDelay( 100 / portTICK_PERIOD_MS );
   }
-}
 }
